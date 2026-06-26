@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>LeetMetrics</title>
     <link rel="stylesheet" href="leet.css">
 </head>
 <body>
@@ -13,44 +13,46 @@
         <div class="user-container">
             <p>Enter your username below:</p>
             <div class="user-input-container">
-                <input type="text" placeholder="Enter your username here" id="user-input">
-                <button id="search-btn">Search</button>
+                <input type="text" placeholder="Enter your username here" id="user-input" autocomplete="off">
+                <button id="search-btn" onclick="fetchStats()">Search</button>
             </div>
         </div>
+
+        <div id="result-message" style="margin-top: 10px; font-weight: bold;"></div>
 
         <div class="status-container">
             <div class="progress">
 
-                <div class="progress-item ">
+                <div class="progress-item">
                     <div class="easy-progress circle">
-                        <span id="easy-label"></span>
-                        Easy
+                        <div class="circle-title">Easy</div>
+                        <div id="easy-label" class="circle-count">-</div>
                     </div>
                 </div>
 
-                <div class="progress-item ">
+                <div class="progress-item">
                     <div class="medium-progress circle">
-                        <span id="medium-label"></span>
-                        Medium
+                        <div class="circle-title">Medium</div>
+                        <div id="medium-label" class="circle-count">-</div>
                     </div>
                 </div>
 
-                <div class="progress-item ">
+                <div class="progress-item">
                     <div class="hard-progress circle">
-                        <span id="hard-progress"></span>
-                        Hard
+                        <div class="circle-title">Hard</div>
+                        <div id="hard-progress" class="circle-count">-</div>
                     </div>
                 </div>
 
             </div>
 
             <div class="stats-card">
-                <!-- directly populate card here from the 35 code -->
+                <div id="total-box" style="text-align: center; font-size: 24px; font-weight: bold; margin-top: 20px; color: #ffa116;">
+                </div>
             </div>
         </div>
     </div>
 
     <script src="leet.js"></script>
 </body>
-
 </html>

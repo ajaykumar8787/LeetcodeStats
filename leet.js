@@ -1,81 +1,54 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const searchButton = document.getElementById("search-btn");
-    const userInput = document.getElementById("user-input");
-    const easyLabel = document.getElementById("easy-label");
-    const mediumLabel = document.getElementById("medium-label");
-    const hardLabel = document.getElementById("hard-progress");
-    const easyProgressCircle = document.querySelector(".easy-progress");
-    const mediumProgressCircle = document.querySelector(".medium-progress");
-    const hardProgressCircle = document.querySelector(".hard-progress");
-    const cardStatsContainer = document.querySelector(".stats-card");
+async function fetchStats() {
+    const username = document.getElementById('user-input').value.trim();
+    const messageDiv = document.getElementById('result-message');
+    
+    // HTML elements ko fetch karna
+    const easySpan = document.getElementById('easy-label');
+    const mediumSpan = document.getElementById('medium-label');
+    const hardSpan = document.getElementById('hard-progress');
+    const totalBox = document.getElementById('total-box');
 
-    function validateUsername(username) {
-        const regex = /^[a-zA-Z0-9_]{3,30}$/;
-        return regex.test(username);
+    // Naya data fetch karne se pehle UI ko reset karna
+    easySpan.innerText = '-';
+    mediumSpan.innerText = '-';
+    hardSpan.innerText = '-';
+    if (totalBox) totalBox.innerHTML = '';
+
+    if (!username) {
+        messageDiv.innerText = "Username is required.";
+        messageDiv.style.color = "red";
+        return;
     }
 
-    async function fetchUserDetails(username) {
-        if (!validateUsername(username)) {
-            alert("Invalid username. Please enter a valid LeetCode username.");
+    messageDiv.innerText = "Fetching data... (Please wait)";
+    messageDiv.style.color = "white";
+
+    try {
+        const response = await fetch(`https://alfa-leetcode-api.onrender.com/${username}/solved`);
+        const data = await response.json();
+
+        // API errors ya invalid user handle karna
+        if (data.errors || !response.ok || data.status === "error") {
+            messageDiv.innerText = "User not found or API is sleeping. Try again in 5 seconds.";
+            messageDiv.style.color = "red";
             return;
         }
 
-        searchButton.textContent = "Searching...";
-        searchButton.disabled = true;
-        cardStatsContainer.style.display = "none";
-
-        const url = `https://leetcode-stats-api.herokuapp.com/${username}`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("User not found");
-
-            const result = await response.json();
-            console.log(result); // Debugging
-
-            if (result.status === "error") {
-                alert("User not found or data unavailable.");
-                return;
-            }
-
-            const easySolved = result.easySolved;
-            const totalEasy = result.totalEasy;
-
-            const mediumSolved = result.mediumSolved;
-            const totalMedium = result.totalMedium;
-
-            const hardSolved = result.hardSolved;
-            const totalHard = result.totalHard;
-
-            updateProgress(easySolved, totalEasy, easyLabel, easyProgressCircle);
-            updateProgress(mediumSolved, totalMedium, mediumLabel, mediumProgressCircle);
-            updateProgress(hardSolved, totalHard, hardLabel, hardProgressCircle);
-
-            cardStatsContainer.innerHTML = `
-                <h2>Problem Solved</h2>
-                <p><strong>Easy:</strong> ${easySolved} / ${totalEasy}</p>
-                <p><strong>Medium:</strong> ${mediumSolved} / ${totalMedium}</p>
-                <p><strong>Hard:</strong> ${hardSolved} / ${totalHard}</p>
-            `;
-            cardStatsContainer.style.display = "block";
-
-        } catch (error) {
-            console.error("Fetch error:", error);
-            alert("Something went wrong. Check the username or try again.");
-        } finally {
-            searchButton.textContent = "Search";
-            searchButton.disabled = false;
+        // DOM me data inject karna
+        easySpan.innerText = data.easySolved;
+        mediumSpan.innerText = data.mediumSolved;
+        hardSpan.innerText = data.hardSolved;
+        
+        if (totalBox) {
+            totalBox.innerHTML = `Total Solved: <span style="color:white;">${data.solvedProblem}</span>`;
         }
+        
+        messageDiv.innerText = `Data successfully retrieved.`;
+        messageDiv.style.color = "#299f5d";
+        
+    } catch (error) {
+        console.error(error);
+        messageDiv.innerText = "Network error! API might be sleeping. Click search again.";
+        messageDiv.style.color = "red";
     }
-
-    function updateProgress(solved, total, labelElement, progressElement) {
-        const percentage = ((solved / total) * 100).toFixed(1);
-        labelElement.innerText = `${percentage}%`;
-        progressElement.style.setProperty("--pprogress-degree", `${percentage}%`);
-    }
-
-    searchButton.addEventListener("click", function () {
-        const username = userInput.value.trim();
-        fetchUserDetails(username);
-    });
-});
+}
